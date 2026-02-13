@@ -7,6 +7,8 @@
 
 A minimalist, high-integrity Pomodoro and objective-tracking utility designed for sustained cognitive throughput. This system is built to provide a low-friction interface for deep work, aligning personal productivity with systemic restraint.
 
+[Time to focus](https://pomodoro-timer-smoky-nine.vercel.app/)
+
 Philosophy
 
 The Focus System is designed around the principle of quiet competence. Unlike mainstream productivity tools that rely on "gamification" or intrusive notifications, this tool assumes good faith and provides a durable, low-drama environment for serious work.
