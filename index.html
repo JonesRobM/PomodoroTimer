@@ -29,13 +29,19 @@
         const PROTOCOLS = [
             "Objective clarity is the only defense against distraction. Define the single most important output.",
             "Amor Fati. Embrace the friction of this task as the necessary heat for refinement.",
-            "You have power over your mind—not outside events. Realize this, and you will find strength.",
+            "You have power over your mind—not outside events. Realise this, and you will find strength.",
             "The impediment to action advances action. What stands in the way becomes the way.",
             "Focus is not the absence of distraction, but the persistent return to the objective.",
             "Do every act of your life as though it were the very last act of your life.",
             "Systems thrive on consistency, not intensity. Execute the protocol with calm indifference to the outcome.",
             "Discard your misperceptions. Stop being jerked like a puppet. Limit yourself to the present.",
-            "The soul becomes dyed with the color of its thoughts. Choose a deep, focused hue for this hour."
+            "The soul becomes dyed with the colour of its thoughts. Choose a deep, focused hue for this hour.",
+            "Small, repetitive actions are the building blocks of massive systemic shifts.",
+            "Excellence is a habit, not an event. Focus on the mechanics of the current minute.",
+            "The mind is a tool, not a storage device. Externalise your tasks; internalise your intent.",
+            "Friction is data. If the work is hard, the calibration is occurring. Do not turn away.",
+            "Silence the internal theater. Perform the task with the quiet competence of a craftsman.",
+            "Constraints are the mother of creativity. Work within the block. Respect the boundary."
         ];
 
         const App = () => {
@@ -132,12 +138,12 @@
 
             return (
                 <div className="min-h-screen bg-[#0B0B0B] text-zinc-400 p-4 md:p-8 flex flex-col items-center select-none">
-                    <div className="w-full max-w-md space-y-6">
+                    <div className="w-full max-w-md space-y-6 flex-1">
                         {/* Header */}
                         <div className="flex justify-between items-end border-b border-zinc-900 pb-6">
                             <div>
                                 <h1 className="text-zinc-100 font-medium tracking-tight text-lg">Focus System</h1>
-                                <p className="text-[9px] text-zinc-600 uppercase tracking-[0.3em] mt-1">Integrity // v2.7</p>
+                                <p className="text-[9px] text-zinc-600 uppercase tracking-[0.3em] mt-1">Integrity // v2.8</p>
                             </div>
                             <div className="text-right">
                                 <span className="text-2xl font-light tabular-nums text-zinc-300">{points}</span>
@@ -160,12 +166,12 @@
                             )}
                         </div>
 
-                        {/* Relocated Pre-Flight Check (Between Anchor and Timer) */}
+                        {/* Relocated Pre-Flight Check */}
                         {showPreFlight ? (
-                            <div className="bg-zinc-100 p-5 rounded-2xl flex items-center justify-between gap-4 animate-in slide-in-from-top-4 duration-300">
+                            <div className="bg-zinc-100 p-5 rounded-2xl flex items-center justify-between gap-4 animate-in slide-in-from-top-4 duration-300 shadow-2xl shadow-black/50">
                                 <div className="flex-1">
                                     <p className="text-[10px] font-bold text-black uppercase tracking-widest mb-1">Pre-Flight Required</p>
-                                    <p className="text-[11px] text-zinc-600 leading-tight">Mute notifications. Clear space. Commit.</p>
+                                    <p className="text-[11px] text-zinc-600 leading-tight">Mute notifications. Clear space. Commit to the block.</p>
                                 </div>
                                 <div className="flex gap-2">
                                     <button onClick={() => setShowPreFlight(false)} className="text-[10px] text-zinc-400 uppercase font-bold p-2">Cancel</button>
@@ -223,6 +229,21 @@
                                 ))}
                             </div>
                         </div>
+                    </div>
+
+                    {/* Footer Banner */}
+                    <div className="w-full max-w-md pt-8 pb-4 mt-auto border-t border-zinc-900 flex flex-col items-center gap-4">
+                        <div className="flex gap-6 items-center">
+                            <a href="https://github.com/JonesRobM/PomodoroTimer" target="_blank" rel="noopener noreferrer" className="text-zinc-600 hover:text-zinc-300 transition-colors flex items-center gap-2 text-[10px] uppercase tracking-widest font-medium">
+                                <i data-lucide="github" size="14"></i> Repository
+                            </a>
+                            <a href="https://ko-fi.com/jonesrobm" target="_blank" rel="noopener noreferrer" className="text-zinc-600 hover:text-zinc-300 transition-colors flex items-center gap-2 text-[10px] uppercase tracking-widest font-medium">
+                                <i data-lucide="coffee" size="14"></i> Support Focus
+                            </a>
+                        </div>
+                        <p className="text-[8px] text-zinc-800 uppercase tracking-[0.4em] text-center">
+                            A System for Quiet Competence & Integrity
+                        </p>
                     </div>
                 </div>
             );
