@@ -13,6 +13,11 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;300;400;500;700&display=swap');
         body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
+        @keyframes pulse-subtle {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .timer-pending { animation: pulse-subtle 2s ease-in-out infinite; }
     </style>
 </head>
 <body class="bg-[#0B0B0B]">
@@ -127,12 +132,12 @@
 
             return (
                 <div className="min-h-screen bg-[#0B0B0B] text-zinc-400 p-4 md:p-8 flex flex-col items-center select-none">
-                    <div className="w-full max-w-md space-y-8">
+                    <div className="w-full max-w-md space-y-6">
                         {/* Header */}
                         <div className="flex justify-between items-end border-b border-zinc-900 pb-6">
                             <div>
-                                <h1 className="text-zinc-100 font-medium tracking-tight">Focus System</h1>
-                                <p className="text-[9px] text-zinc-600 uppercase tracking-[0.3em] mt-1">Integrity // v2.6</p>
+                                <h1 className="text-zinc-100 font-medium tracking-tight text-lg">Focus System</h1>
+                                <p className="text-[9px] text-zinc-600 uppercase tracking-[0.3em] mt-1">Integrity // v2.7</p>
                             </div>
                             <div className="text-right">
                                 <span className="text-2xl font-light tabular-nums text-zinc-300">{points}</span>
@@ -155,43 +160,48 @@
                             )}
                         </div>
 
-                        {/* Timer Main Shell */}
-                        <div className="bg-zinc-900/10 border border-zinc-900 rounded-[2.5rem] py-12 text-center relative overflow-hidden">
-                            {/* Decluttered Pre-Flight Overlay */}
-                            {showPreFlight && (
-                                <div className="absolute inset-0 bg-[#0B0B0B] z-50 flex flex-col items-center justify-center p-8 space-y-6 animate-in fade-in zoom-in-95 duration-200">
-                                    <div className="space-y-2">
-                                        <p className="text-xs uppercase tracking-[0.3em] text-zinc-200 font-bold">Pre-Flight Check</p>
-                                        <div className="h-px w-8 bg-zinc-800 mx-auto"></div>
-                                    </div>
-                                    <p className="text-[11px] text-zinc-500 max-w-[200px] leading-relaxed">Notifications muted? Environment cleared? Commit to the block.</p>
-                                    <button onClick={startSession} className="bg-white text-black px-10 py-3 rounded-xl text-xs font-bold uppercase tracking-widest active:scale-95 transition-transform shadow-2xl">
-                                        Confirm
-                                    </button>
-                                    <button onClick={() => setShowPreFlight(false)} className="text-[10px] text-zinc-700 uppercase tracking-widest hover:text-zinc-500">Cancel</button>
+                        {/* Relocated Pre-Flight Check (Between Anchor and Timer) */}
+                        {showPreFlight ? (
+                            <div className="bg-zinc-100 p-5 rounded-2xl flex items-center justify-between gap-4 animate-in slide-in-from-top-4 duration-300">
+                                <div className="flex-1">
+                                    <p className="text-[10px] font-bold text-black uppercase tracking-widest mb-1">Pre-Flight Required</p>
+                                    <p className="text-[11px] text-zinc-600 leading-tight">Mute notifications. Clear space. Commit.</p>
                                 </div>
-                            )}
-                            
+                                <div className="flex gap-2">
+                                    <button onClick={() => setShowPreFlight(false)} className="text-[10px] text-zinc-400 uppercase font-bold p-2">Cancel</button>
+                                    <button onClick={startSession} className="bg-black text-white px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest active:scale-95 transition-transform">Confirm</button>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="h-0 transition-all duration-300 overflow-hidden"></div>
+                        )}
+
+                        {/* Timer Main Shell */}
+                        <div className="bg-zinc-900/10 border border-zinc-900 rounded-[2.5rem] py-10 text-center relative overflow-hidden">
                             <div className="flex justify-center gap-2 mb-8">
                                 {Object.keys(MODES).map(m => (
-                                    <button key={m} onClick={() => {setMode(m); setTimeLeft(MODES[m].time); setIsActive(false);}}
+                                    <button key={m} onClick={() => {setMode(m); setTimeLeft(MODES[m].time); setIsActive(false); setShowPreFlight(false);}}
                                         className={`text-[9px] uppercase font-bold tracking-widest px-3 py-1.5 rounded-md ${mode === m ? 'bg-zinc-800 text-white' : 'text-zinc-600'}`}>
                                         {MODES[m].id}
                                     </button>
                                 ))}
                             </div>
                             
-                            <div className="text-[22vw] md:text-8xl font-extralight text-zinc-100 tabular-nums tracking-tighter mb-8 leading-none">
+                            <div className={`text-[22vw] md:text-8xl font-extralight text-zinc-100 tabular-nums tracking-tighter mb-8 leading-none ${showPreFlight ? 'timer-pending' : ''}`}>
                                 {formatTime(timeLeft)}
                             </div>
 
                             <div className="flex justify-center gap-8 items-center">
-                                <button onClick={() => {setIsActive(false); setTimeLeft(MODES[mode].time);}} className="text-zinc-800 hover:text-zinc-500 transition-colors"><i data-lucide="rotate-ccw"></i></button>
-                                <button onClick={() => mode === 'FOCUS' && !isActive ? setShowPreFlight(true) : (isActive ? setIsActive(false) : startSession())} 
+                                <button onClick={() => {setIsActive(false); setTimeLeft(MODES[mode].time); setShowPreFlight(false);}} className="text-zinc-800 hover:text-zinc-500 transition-colors">
+                                    <i data-lucide="rotate-ccw"></i>
+                                </button>
+                                <button onClick={() => mode === 'FOCUS' && !isActive && !showPreFlight ? setShowPreFlight(true) : (isActive ? setIsActive(false) : startSession())} 
                                     className="w-20 h-20 rounded-3xl bg-zinc-100 text-black flex items-center justify-center active:scale-95 shadow-xl transition-all">
                                     <i data-lucide={isActive ? "pause" : "play"}></i>
                                 </button>
-                                <button onClick={handleComplete} className="text-zinc-800 hover:text-zinc-500 transition-colors"><i data-lucide="skip-forward"></i></button>
+                                <button onClick={handleComplete} className="text-zinc-800 hover:text-zinc-500 transition-colors">
+                                    <i data-lucide="skip-forward"></i>
+                                </button>
                             </div>
                         </div>
 
@@ -201,7 +211,7 @@
                                 <input type="text" value={newTask} onChange={e => setNewTask(e.target.value)} placeholder="Next Objective..." className="flex-1 bg-zinc-900/40 border border-zinc-900 rounded-xl px-4 py-3 text-sm text-zinc-200 outline-none focus:border-zinc-700 placeholder:text-zinc-800" />
                                 <button className="bg-zinc-800 px-5 rounded-xl text-zinc-400 hover:text-white transition-colors">+</button>
                             </form>
-                            <div className="space-y-2 no-scrollbar max-h-64 overflow-y-auto pb-10">
+                            <div className="space-y-2 no-scrollbar max-h-60 overflow-y-auto pb-6">
                                 {tasks.map(t => (
                                     <div key={t.id} className={`flex items-center gap-3 p-4 rounded-xl border transition-all ${t.completed ? 'opacity-20 border-transparent scale-[0.98]' : 'bg-zinc-900/20 border-zinc-900'}`}>
                                         <button onClick={() => setTasks(tasks.map(tk => tk.id === t.id ? {...tk, completed: !tk.completed} : tk))} className="text-zinc-600">
