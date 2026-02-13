@@ -41,7 +41,12 @@
             "The mind is a tool, not a storage device. Externalise your tasks; internalise your intent.",
             "Friction is data. If the work is hard, the calibration is occurring. Do not turn away.",
             "Silence the internal theater. Perform the task with the quiet competence of a craftsman.",
-            "Constraints are the mother of creativity. Work within the block. Respect the boundary."
+            "Constraints are the mother of creativity. Work within the block. Respect the boundary.",
+            "The standard you walk past is the standard you accept. Maintain rigorous internal quality control.",
+            "Do not seek for things to happen the way you want them to; rather, wish that what happens happen the way it happens.",
+            "Your concentration is your currency. Spend it only on what yields a durable return.",
+            "The goal is not to be busy, but to be effective. Distinguish activity from progress.",
+            "Return to the work. It is the only place where the self is both lost and found."
         ];
 
         const App = () => {
@@ -137,13 +142,13 @@
             };
 
             return (
-                <div className="min-h-screen bg-[#0B0B0B] text-zinc-400 p-4 md:p-8 flex flex-col items-center select-none">
+                <div className="min-h-screen bg-[#0B0B0B] text-zinc-400 p-4 md:p-8 flex flex-col items-center select-none overflow-x-hidden">
                     <div className="w-full max-w-md space-y-6 flex-1">
                         {/* Header */}
                         <div className="flex justify-between items-end border-b border-zinc-900 pb-6">
                             <div>
                                 <h1 className="text-zinc-100 font-medium tracking-tight text-lg">Focus System</h1>
-                                <p className="text-[9px] text-zinc-600 uppercase tracking-[0.3em] mt-1">Integrity // v2.8</p>
+                                <p className="text-[9px] text-zinc-600 uppercase tracking-[0.3em] mt-1">Integrity // v2.9</p>
                             </div>
                             <div className="text-right">
                                 <span className="text-2xl font-light tabular-nums text-zinc-300">{points}</span>
@@ -232,18 +237,25 @@
                     </div>
 
                     {/* Footer Banner */}
-                    <div className="w-full max-w-md pt-8 pb-4 mt-auto border-t border-zinc-900 flex flex-col items-center gap-4">
-                        <div className="flex gap-6 items-center">
+                    <div className="w-full max-w-md pt-12 pb-6 mt-12 border-t border-zinc-900 flex flex-col items-center gap-6">
+                        <div className="flex flex-col sm:flex-row gap-6 items-center">
                             <a href="https://github.com/JonesRobM/PomodoroTimer" target="_blank" rel="noopener noreferrer" className="text-zinc-600 hover:text-zinc-300 transition-colors flex items-center gap-2 text-[10px] uppercase tracking-widest font-medium">
                                 <i data-lucide="github" size="14"></i> Repository
                             </a>
-                            <a href="https://ko-fi.com/jonesrobm" target="_blank" rel="noopener noreferrer" className="text-zinc-600 hover:text-zinc-300 transition-colors flex items-center gap-2 text-[10px] uppercase tracking-widest font-medium">
-                                <i data-lucide="coffee" size="14"></i> Support Focus
+                            
+                            {/* Official Ko-fi Button Image */}
+                            <a href="https://ko-fi.com/jonesrobm" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity">
+                                <img height='32' style={{border:0, height:32}} src='https://storage.ko-fi.com/cdn/kofi2.png?v=6' border='0' alt='Buy Me a Coffee at ko-fi.com' />
                             </a>
                         </div>
-                        <p className="text-[8px] text-zinc-800 uppercase tracking-[0.4em] text-center">
-                            A System for Quiet Competence & Integrity
-                        </p>
+                        <div className="space-y-1 text-center">
+                            <p className="text-[8px] text-zinc-800 uppercase tracking-[0.4em]">
+                                A System for Quiet Competence & Integrity
+                            </p>
+                            <p className="text-[7px] text-zinc-500/50 italic tracking-widest">
+                                Thank you for choosing to focus.
+                            </p>
+                        </div>
                     </div>
                 </div>
             );
