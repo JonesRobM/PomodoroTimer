@@ -4,13 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Focus System | JonesRobM</title>
-    <!-- React & Babel for Browser Parsing -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;300;400;500;700&display=swap');
@@ -22,10 +19,8 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect, useRef, useMemo } = React;
+        const { useState, useEffect, useRef } = React;
         
-        // --- Native Protocol Library ---
-        // A curated set of Stoic and systems-thinking anchors.
         const PROTOCOLS = [
             "Objective clarity is the only defense against distraction. Define the single most important output.",
             "Amor Fati. Embrace the friction of this task as the necessary heat for refinement.",
@@ -33,7 +28,6 @@
             "The impediment to action advances action. What stands in the way becomes the way.",
             "Focus is not the absence of distraction, but the persistent return to the objective.",
             "Do every act of your life as though it were the very last act of your life.",
-            "Wealth is the ability to fully experience life. Focus is the currency of that experience.",
             "Systems thrive on consistency, not intensity. Execute the protocol with calm indifference to the outcome.",
             "Discard your misperceptions. Stop being jerked like a puppet. Limit yourself to the present.",
             "The soul becomes dyed with the color of its thoughts. Choose a deep, focused hue for this hour."
@@ -41,28 +35,99 @@
 
         const App = () => {
             const MODES = {
-                FOCUS: { id: 'FOCUS', label: 'Focus Deep', time: 25 * 60, desc: 'High-intensity cognitive work.' },
-                SHORT_BREAK: { id: 'SHORT_BREAK', label: 'Short Rest', time: 5 * 60, desc: 'Brief physiological reset.' },
-                LONG_BREAK: { id: 'LONG_BREAK', label: 'Deep Reset', time: 15 * 60, desc: 'Extended recovery.' }
+                FOCUS: { id: 'FOCUS', label: 'Focus Deep', time: 25 * 60 },
+                SHORT_BREAK: { id: 'SHORT_BREAK', label: 'Short Rest', time: 5 * 60 },
+                LONG_BREAK: { id: 'LONG_BREAK', label: 'Deep Reset', time: 15 * 60 }
             };
 
             const [mode, setMode] = useState('FOCUS');
-            const [timeLeft, setTimeLeft] = useState(MODES.FOCUS.time);
             const [isActive, setIsActive] = useState(false);
+            const [timeLeft, setTimeLeft] = useState(MODES.FOCUS.time);
             const [points, setPoints] = useState(() => Number(localStorage.getItem('focus_points')) || 0);
-            const [history, setHistory] = useState(() => JSON.parse(localStorage.getItem('focus_history')) || []);
             const [tasks, setTasks] = useState(() => JSON.parse(localStorage.getItem('focus_tasks')) || []);
             const [newTask, setNewTask] = useState('');
             const [aiCoachResponse, setAiCoachResponse] = useState(null);
             const [showPreFlight, setShowPreFlight] = useState(false);
+            
             const timerRef = useRef(null);
+
+            // --- Audio Logic ---
+            const playAlert = () => {
+                try {
+                    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(440, ctx.currentTime); // A4
+                    osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.5);
+                    
+                    gain.gain.setValueAtTime(0, ctx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.2, ctx.currentTime + 0.1);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 2);
+                    
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    
+                    osc.start();
+                    osc.stop(ctx.currentTime + 2);
+                } catch (e) {
+                    console.error("Audio inhibited by browser policy.");
+                }
+            };
+
+            // --- Persistence Logic ---
+            const calculateRemaining = () => {
+                const endTime = localStorage.getItem('timer_end_time');
+                if (!endTime || !isActive) return;
+
+                const remaining = Math.max(0, Math.ceil((Number(endTime) - Date.now()) / 1000));
+                if (remaining === 0 && timeLeft > 0) {
+                    handleComplete();
+                } else {
+                    setTimeLeft(remaining);
+                }
+            };
+
+            useEffect(() => {
+                // Check time whenever app is visible or active
+                const handleVisibilityChange = () => {
+                    if (document.visibilityState === 'visible') calculateRemaining();
+                };
+                window.addEventListener('visibilitychange', handleVisibilityChange);
+                return () => window.removeEventListener('visibilitychange', handleVisibilityChange);
+            }, [isActive, timeLeft]);
+
+            useEffect(() => {
+                if (isActive) {
+                    timerRef.current = setInterval(calculateRemaining, 1000);
+                } else {
+                    clearInterval(timerRef.current);
+                    localStorage.removeItem('timer_end_time');
+                }
+                return () => clearInterval(timerRef.current);
+            }, [isActive]);
+
+            const startSession = () => {
+                const endTime = Date.now() + (timeLeft * 1000);
+                localStorage.setItem('timer_end_time', endTime.toString());
+                setIsActive(true);
+                setShowPreFlight(false);
+            };
+
+            const handleComplete = () => {
+                setIsActive(false);
+                setTimeLeft(MODES[mode].time);
+                localStorage.removeItem('timer_end_time');
+                setPoints(p => p + Math.floor(MODES[mode].time / 60));
+                playAlert();
+            };
 
             useEffect(() => {
                 localStorage.setItem('focus_points', points);
-                localStorage.setItem('focus_history', JSON.stringify(history));
                 localStorage.setItem('focus_tasks', JSON.stringify(tasks));
                 if (window.lucide) window.lucide.createIcons();
-            }, [points, history, tasks]);
+            }, [points, tasks]);
 
             const formatTime = (seconds) => {
                 const mins = Math.floor(seconds / 60);
@@ -70,70 +135,47 @@
                 return `${mins}:${secs.toString().padStart(2, '0')}`;
             };
 
-            // Replaced API call with native library selection
-            const generateProtocol = () => {
-                const randomIndex = Math.floor(Math.random() * PROTOCOLS.length);
-                setAiCoachResponse(PROTOCOLS[randomIndex]);
-            };
-
-            useEffect(() => {
-                if (isActive && timeLeft > 0) {
-                    timerRef.current = setInterval(() => setTimeLeft(p => p - 1), 1000);
-                } else if (timeLeft === 0) {
-                    const earned = Math.floor(MODES[mode].time / 60);
-                    setPoints(p => p + earned);
-                    setHistory(prev => [...prev, mode]);
-                    setIsActive(false);
-                    clearInterval(timerRef.current);
-                }
-                return () => clearInterval(timerRef.current);
-            }, [isActive, timeLeft]);
-
             return (
-                <div className="min-h-screen bg-[#0B0B0B] text-zinc-400 p-4 md:p-8 flex flex-col items-center select-none overscroll-none">
+                <div className="min-h-screen bg-[#0B0B0B] text-zinc-400 p-4 md:p-8 flex flex-col items-center select-none">
                     <div className="w-full max-w-md space-y-8">
-                        {/* Header */}
                         <div className="flex justify-between items-end border-b border-zinc-900 pb-6">
                             <div>
                                 <h1 className="text-zinc-100 font-medium tracking-tight">Focus System</h1>
-                                <p className="text-[9px] text-zinc-600 uppercase tracking-[0.3em] mt-1">Integrity // v2.4</p>
+                                <p className="text-[9px] text-zinc-600 uppercase tracking-[0.3em] mt-1">Integrity // v2.5</p>
                             </div>
                             <div className="text-right">
                                 <span className="text-2xl font-light tabular-nums text-zinc-300">{points}</span>
                             </div>
                         </div>
 
-                        {/* AI Protocol - Now Native Library */}
-                        <div className="bg-zinc-900/20 border border-zinc-900 rounded-2xl p-4 min-h-[80px] flex flex-col justify-center transition-all duration-500">
+                        <div className="bg-zinc-900/20 border border-zinc-900 rounded-2xl p-4 min-h-[80px] flex flex-col justify-center">
                             {aiCoachResponse ? (
-                                <div className="animate-in fade-in slide-in-from-bottom-2 duration-700">
+                                <div className="animate-in fade-in slide-in-from-bottom-2">
                                     <p className="text-[10px] text-zinc-600 uppercase tracking-widest mb-2">Active Anchor</p>
                                     <p className="text-xs italic text-zinc-300 leading-relaxed">"{aiCoachResponse}"</p>
                                 </div>
                             ) : (
                                 <div className="flex justify-between items-center">
                                     <span className="text-xs text-zinc-600 uppercase tracking-widest">Protocol Stored</span>
-                                    <button onClick={generateProtocol} className="text-[10px] bg-zinc-800 px-3 py-1 rounded text-zinc-400 hover:text-white transition-colors">
-                                        Engage
-                                    </button>
+                                    <button onClick={() => setAiCoachResponse(PROTOCOLS[Math.floor(Math.random() * PROTOCOLS.length)])} 
+                                        className="text-[10px] bg-zinc-800 px-3 py-1 rounded text-zinc-400">Engage</button>
                                 </div>
                             )}
                         </div>
 
-                        {/* Timer */}
                         <div className="bg-zinc-900/10 border border-zinc-900 rounded-[2.5rem] py-12 text-center relative overflow-hidden">
                             {showPreFlight && (
-                                <div className="absolute inset-0 bg-zinc-950/98 z-20 flex flex-col items-center justify-center p-6 text-center space-y-4 animate-in fade-in duration-300">
+                                <div className="absolute inset-0 bg-zinc-950/98 z-20 flex flex-col items-center justify-center p-6 space-y-4 animate-in fade-in">
                                     <p className="text-xs uppercase tracking-widest text-zinc-400">Pre-Flight Check</p>
                                     <p className="text-[10px] text-zinc-600">Notifications muted? Environment cleared?</p>
-                                    <button onClick={() => {setShowPreFlight(false); setIsActive(true);}} className="bg-white text-black px-6 py-2 rounded-lg text-xs font-bold uppercase active:scale-95 transition-transform">Confirm</button>
+                                    <button onClick={startSession} className="bg-white text-black px-6 py-2 rounded-lg text-xs font-bold uppercase">Confirm</button>
                                 </div>
                             )}
                             <div className="flex justify-center gap-2 mb-8">
                                 {Object.keys(MODES).map(m => (
                                     <button key={m} onClick={() => {setMode(m); setTimeLeft(MODES[m].time); setIsActive(false);}}
-                                        className={`text-[9px] uppercase font-bold tracking-widest px-3 py-1.5 rounded-md transition-all ${mode === m ? 'bg-zinc-800 text-white' : 'text-zinc-600 hover:text-zinc-400'}`}>
-                                        {MODES[m].label}
+                                        className={`text-[9px] uppercase font-bold tracking-widest px-3 py-1.5 rounded-md ${mode === m ? 'bg-zinc-800 text-white' : 'text-zinc-600'}`}>
+                                        {MODES[m].id}
                                     </button>
                                 ))}
                             </div>
@@ -141,29 +183,28 @@
                                 {formatTime(timeLeft)}
                             </div>
                             <div className="flex justify-center gap-8 items-center">
-                                <button onClick={() => setTimeLeft(MODES[mode].time)} className="text-zinc-700 hover:text-zinc-400 transition-colors"><i data-lucide="rotate-ccw"></i></button>
-                                <button onClick={() => mode === 'FOCUS' && !isActive ? setShowPreFlight(true) : setIsActive(!isActive)} 
-                                    className="w-20 h-20 rounded-2xl bg-zinc-100 text-black flex items-center justify-center active:scale-95 transition-transform shadow-lg shadow-white/5">
+                                <button onClick={() => {setIsActive(false); setTimeLeft(MODES[mode].time);}} className="text-zinc-700"><i data-lucide="rotate-ccw"></i></button>
+                                <button onClick={() => mode === 'FOCUS' && !isActive ? setShowPreFlight(true) : (isActive ? setIsActive(false) : startSession())} 
+                                    className="w-20 h-20 rounded-2xl bg-zinc-100 text-black flex items-center justify-center active:scale-95 shadow-lg">
                                     <i data-lucide={isActive ? "pause" : "play"}></i>
                                 </button>
-                                <button onClick={() => setTimeLeft(0)} className="text-zinc-700 hover:text-zinc-400 transition-colors"><i data-lucide="skip-forward"></i></button>
+                                <button onClick={handleComplete} className="text-zinc-700"><i data-lucide="skip-forward"></i></button>
                             </div>
                         </div>
 
-                        {/* Tasks */}
                         <div className="space-y-4">
                             <form onSubmit={(e) => {e.preventDefault(); if(newTask) {setTasks([...tasks, {id: Date.now(), text: newTask, completed: false}]); setNewTask('');}}} className="flex gap-2">
                                 <input type="text" value={newTask} onChange={e => setNewTask(e.target.value)} placeholder="Objective..." className="flex-1 bg-zinc-900/40 border border-zinc-900 rounded-xl px-4 py-3 text-sm text-zinc-200 outline-none focus:border-zinc-700 placeholder:text-zinc-800" />
-                                <button className="bg-zinc-800 px-4 rounded-xl text-zinc-400 hover:text-white transition-colors">+</button>
+                                <button className="bg-zinc-800 px-4 rounded-xl text-zinc-400">+</button>
                             </form>
                             <div className="space-y-2 no-scrollbar max-h-64 overflow-y-auto">
                                 {tasks.map(t => (
-                                    <div key={t.id} className={`flex items-center gap-3 p-4 rounded-xl border transition-all duration-300 ${t.completed ? 'opacity-30 border-transparent grayscale' : 'bg-zinc-900/20 border-zinc-900'}`}>
-                                        <button onClick={() => setTasks(tasks.map(tk => tk.id === t.id ? {...tk, completed: !tk.completed} : tk))} className="text-zinc-600 hover:text-zinc-400">
+                                    <div key={t.id} className={`flex items-center gap-3 p-4 rounded-xl border transition-all ${t.completed ? 'opacity-30 border-transparent' : 'bg-zinc-900/20 border-zinc-900'}`}>
+                                        <button onClick={() => setTasks(tasks.map(tk => tk.id === t.id ? {...tk, completed: !tk.completed} : tk))} className="text-zinc-600">
                                             <i data-lucide={t.completed ? "check-circle-2" : "circle"}></i>
                                         </button>
                                         <span className={`text-sm flex-1 ${t.completed ? 'line-through' : ''}`}>{t.text}</span>
-                                        <button onClick={() => setTasks(tasks.filter(tk => tk.id !== t.id))} className="text-zinc-800 hover:text-red-900 transition-colors"><i data-lucide="trash-2" size="14"></i></button>
+                                        <button onClick={() => setTasks(tasks.filter(tk => tk.id !== t.id))} className="text-zinc-800"><i data-lucide="trash-2" size="14"></i></button>
                                     </div>
                                 ))}
                             </div>
