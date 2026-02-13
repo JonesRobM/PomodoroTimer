@@ -24,22 +24,22 @@
     <script type="text/babel">
         const { useState, useEffect, useRef, useMemo } = React;
         
-        // Lucide Icon Component Wrapper
-        const Icon = ({ name, size = 18, className = "" }) => {
-            const [svg, setSvg] = useState("");
-            useEffect(() => {
-                if (window.lucide) {
-                    const iconSvg = window.lucide.createIcons();
-                }
-            }, []);
-            // Simple fallback for single-file CDN usage: we use a standard span with data-lucide
-            return <i data-lucide={name} style={{width: size, height: size}} className={className}></i>;
-        };
+        // --- Native Protocol Library ---
+        // A curated set of Stoic and systems-thinking anchors.
+        const PROTOCOLS = [
+            "Objective clarity is the only defense against distraction. Define the single most important output.",
+            "Amor Fati. Embrace the friction of this task as the necessary heat for refinement.",
+            "You have power over your mind—not outside events. Realize this, and you will find strength.",
+            "The impediment to action advances action. What stands in the way becomes the way.",
+            "Focus is not the absence of distraction, but the persistent return to the objective.",
+            "Do every act of your life as though it were the very last act of your life.",
+            "Wealth is the ability to fully experience life. Focus is the currency of that experience.",
+            "Systems thrive on consistency, not intensity. Execute the protocol with calm indifference to the outcome.",
+            "Discard your misperceptions. Stop being jerked like a puppet. Limit yourself to the present.",
+            "The soul becomes dyed with the color of its thoughts. Choose a deep, focused hue for this hour."
+        ];
 
         const App = () => {
-            const apiKey = ""; // Set at runtime or via environment
-            const BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent";
-
             const MODES = {
                 FOCUS: { id: 'FOCUS', label: 'Focus Deep', time: 25 * 60, desc: 'High-intensity cognitive work.' },
                 SHORT_BREAK: { id: 'SHORT_BREAK', label: 'Short Rest', time: 5 * 60, desc: 'Brief physiological reset.' },
@@ -53,7 +53,6 @@
             const [history, setHistory] = useState(() => JSON.parse(localStorage.getItem('focus_history')) || []);
             const [tasks, setTasks] = useState(() => JSON.parse(localStorage.getItem('focus_tasks')) || []);
             const [newTask, setNewTask] = useState('');
-            const [isAiLoading, setIsAiLoading] = useState(false);
             const [aiCoachResponse, setAiCoachResponse] = useState(null);
             const [showPreFlight, setShowPreFlight] = useState(false);
             const timerRef = useRef(null);
@@ -71,29 +70,10 @@
                 return `${mins}:${secs.toString().padStart(2, '0')}`;
             };
 
-            const callGemini = async (prompt) => {
-                setIsAiLoading(true);
-                try {
-                    const response = await fetch(`${BASE_URL}?key=${apiKey}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            contents: [{ parts: [{ text: prompt }] }],
-                            systemInstruction: { parts: [{ text: "High-performance coach. Stoic. Concise." }] }
-                        })
-                    });
-                    const data = await response.json();
-                    setIsAiLoading(false);
-                    return data.candidates?.[0]?.content?.parts?.[0]?.text;
-                } catch (err) {
-                    setIsAiLoading(false);
-                    return null;
-                }
-            };
-
-            const generateProtocol = async () => {
-                const result = await callGemini("Provide a 2-sentence stoic protocol for a deep focus session.");
-                if (result) setAiCoachResponse(result);
+            // Replaced API call with native library selection
+            const generateProtocol = () => {
+                const randomIndex = Math.floor(Math.random() * PROTOCOLS.length);
+                setAiCoachResponse(PROTOCOLS[randomIndex]);
             };
 
             useEffect(() => {
@@ -123,15 +103,18 @@
                             </div>
                         </div>
 
-                        {/* AI Protocol */}
-                        <div className="bg-zinc-900/20 border border-zinc-900 rounded-2xl p-4 min-h-[80px] flex flex-col justify-center">
+                        {/* AI Protocol - Now Native Library */}
+                        <div className="bg-zinc-900/20 border border-zinc-900 rounded-2xl p-4 min-h-[80px] flex flex-col justify-center transition-all duration-500">
                             {aiCoachResponse ? (
-                                <p className="text-xs italic text-zinc-300 leading-relaxed">"{aiCoachResponse}"</p>
+                                <div className="animate-in fade-in slide-in-from-bottom-2 duration-700">
+                                    <p className="text-[10px] text-zinc-600 uppercase tracking-widest mb-2">Active Anchor</p>
+                                    <p className="text-xs italic text-zinc-300 leading-relaxed">"{aiCoachResponse}"</p>
+                                </div>
                             ) : (
                                 <div className="flex justify-between items-center">
-                                    <span className="text-xs text-zinc-600 uppercase tracking-widest">Protocol Offline</span>
-                                    <button onClick={generateProtocol} className="text-[10px] bg-zinc-800 px-3 py-1 rounded text-zinc-400">
-                                        {isAiLoading ? "..." : "Engage AI"}
+                                    <span className="text-xs text-zinc-600 uppercase tracking-widest">Protocol Stored</span>
+                                    <button onClick={generateProtocol} className="text-[10px] bg-zinc-800 px-3 py-1 rounded text-zinc-400 hover:text-white transition-colors">
+                                        Engage
                                     </button>
                                 </div>
                             )}
@@ -140,16 +123,16 @@
                         {/* Timer */}
                         <div className="bg-zinc-900/10 border border-zinc-900 rounded-[2.5rem] py-12 text-center relative overflow-hidden">
                             {showPreFlight && (
-                                <div className="absolute inset-0 bg-zinc-950/98 z-20 flex flex-col items-center justify-center p-6 text-center space-y-4">
+                                <div className="absolute inset-0 bg-zinc-950/98 z-20 flex flex-col items-center justify-center p-6 text-center space-y-4 animate-in fade-in duration-300">
                                     <p className="text-xs uppercase tracking-widest text-zinc-400">Pre-Flight Check</p>
                                     <p className="text-[10px] text-zinc-600">Notifications muted? Environment cleared?</p>
-                                    <button onClick={() => {setShowPreFlight(false); setIsActive(true);}} className="bg-white text-black px-6 py-2 rounded-lg text-xs font-bold uppercase">Confirm</button>
+                                    <button onClick={() => {setShowPreFlight(false); setIsActive(true);}} className="bg-white text-black px-6 py-2 rounded-lg text-xs font-bold uppercase active:scale-95 transition-transform">Confirm</button>
                                 </div>
                             )}
                             <div className="flex justify-center gap-2 mb-8">
                                 {Object.keys(MODES).map(m => (
                                     <button key={m} onClick={() => {setMode(m); setTimeLeft(MODES[m].time); setIsActive(false);}}
-                                        className={`text-[9px] uppercase font-bold tracking-widest px-3 py-1.5 rounded-md transition-all ${mode === m ? 'bg-zinc-800 text-white' : 'text-zinc-600'}`}>
+                                        className={`text-[9px] uppercase font-bold tracking-widest px-3 py-1.5 rounded-md transition-all ${mode === m ? 'bg-zinc-800 text-white' : 'text-zinc-600 hover:text-zinc-400'}`}>
                                         {MODES[m].label}
                                     </button>
                                 ))}
@@ -158,29 +141,29 @@
                                 {formatTime(timeLeft)}
                             </div>
                             <div className="flex justify-center gap-8 items-center">
-                                <button onClick={() => setTimeLeft(MODES[mode].time)} className="text-zinc-700"><i data-lucide="rotate-ccw"></i></button>
+                                <button onClick={() => setTimeLeft(MODES[mode].time)} className="text-zinc-700 hover:text-zinc-400 transition-colors"><i data-lucide="rotate-ccw"></i></button>
                                 <button onClick={() => mode === 'FOCUS' && !isActive ? setShowPreFlight(true) : setIsActive(!isActive)} 
-                                    className="w-20 h-20 rounded-2xl bg-zinc-100 text-black flex items-center justify-center active:scale-95 transition-transform">
+                                    className="w-20 h-20 rounded-2xl bg-zinc-100 text-black flex items-center justify-center active:scale-95 transition-transform shadow-lg shadow-white/5">
                                     <i data-lucide={isActive ? "pause" : "play"}></i>
                                 </button>
-                                <button onClick={() => setTimeLeft(0)} className="text-zinc-700"><i data-lucide="skip-forward"></i></button>
+                                <button onClick={() => setTimeLeft(0)} className="text-zinc-700 hover:text-zinc-400 transition-colors"><i data-lucide="skip-forward"></i></button>
                             </div>
                         </div>
 
                         {/* Tasks */}
                         <div className="space-y-4">
                             <form onSubmit={(e) => {e.preventDefault(); if(newTask) {setTasks([...tasks, {id: Date.now(), text: newTask, completed: false}]); setNewTask('');}}} className="flex gap-2">
-                                <input type="text" value={newTask} onChange={e => setNewTask(e.target.value)} placeholder="Objective..." className="flex-1 bg-zinc-900/40 border border-zinc-900 rounded-xl px-4 py-3 text-sm text-zinc-200 outline-none focus:border-zinc-700" />
-                                <button className="bg-zinc-800 px-4 rounded-xl text-zinc-400">+</button>
+                                <input type="text" value={newTask} onChange={e => setNewTask(e.target.value)} placeholder="Objective..." className="flex-1 bg-zinc-900/40 border border-zinc-900 rounded-xl px-4 py-3 text-sm text-zinc-200 outline-none focus:border-zinc-700 placeholder:text-zinc-800" />
+                                <button className="bg-zinc-800 px-4 rounded-xl text-zinc-400 hover:text-white transition-colors">+</button>
                             </form>
-                            <div className="space-y-2">
+                            <div className="space-y-2 no-scrollbar max-h-64 overflow-y-auto">
                                 {tasks.map(t => (
-                                    <div key={t.id} className={`flex items-center gap-3 p-4 rounded-xl border transition-opacity ${t.completed ? 'opacity-30 border-transparent' : 'bg-zinc-900/20 border-zinc-900'}`}>
-                                        <button onClick={() => setTasks(tasks.map(tk => tk.id === t.id ? {...tk, completed: !tk.completed} : tk))} className="text-zinc-600">
+                                    <div key={t.id} className={`flex items-center gap-3 p-4 rounded-xl border transition-all duration-300 ${t.completed ? 'opacity-30 border-transparent grayscale' : 'bg-zinc-900/20 border-zinc-900'}`}>
+                                        <button onClick={() => setTasks(tasks.map(tk => tk.id === t.id ? {...tk, completed: !tk.completed} : tk))} className="text-zinc-600 hover:text-zinc-400">
                                             <i data-lucide={t.completed ? "check-circle-2" : "circle"}></i>
                                         </button>
-                                        <span className="text-sm flex-1">{t.text}</span>
-                                        <button onClick={() => setTasks(tasks.filter(tk => tk.id !== t.id))} className="text-zinc-800"><i data-lucide="trash-2" size="14"></i></button>
+                                        <span className={`text-sm flex-1 ${t.completed ? 'line-through' : ''}`}>{t.text}</span>
+                                        <button onClick={() => setTasks(tasks.filter(tk => tk.id !== t.id))} className="text-zinc-800 hover:text-red-900 transition-colors"><i data-lucide="trash-2" size="14"></i></button>
                                     </div>
                                 ))}
                             </div>
