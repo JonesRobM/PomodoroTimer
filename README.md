@@ -1,4 +1,9 @@
-Focus System v2.4
+<h1 align="center">Focus System v2.9</h1>
+
+**"The soul becomes dyed with the colour of its thoughts. Choose a deep, focused hue for this hour.**
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Ko-fi](https://img.shields.io/badge/Ko--fi-Support%20PhysBound-ff5e5b?logo=ko-fi&logoColor=white)](https://ko-fi.com/jonesrobm)
 
 A minimalist, high-integrity Pomodoro and objective-tracking utility designed for sustained cognitive throughput. This system is built to provide a low-friction interface for deep work, aligning personal productivity with systemic restraint.
 
@@ -16,7 +21,7 @@ Technical Architecture
 
 The application is a single-file React utility, optimized for both desktop and mobile (PWA) deployment.
 
-Engine: React 18 with Hooks (useState, useEffect, useMemo, useRef).
+Engine: React 18 with Hooks (useState, useEffect, useRef).
 
 Styling: Tailwind CSS (custom zinc/dark-mode palette).
 
